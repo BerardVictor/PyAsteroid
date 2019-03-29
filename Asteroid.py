@@ -21,7 +21,7 @@ clock = pygame.time.Clock()
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
-        pygame.sprite.Sprite.__init__(self)
+        super().__init__()
         self.image = pygame.Surface((50, 40))
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
@@ -59,6 +59,38 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.rect.top = block.rect.bottom
 
+class Enemy(pygame.sprite.Sprite) : 
+    def __init__(self):
+        super().__init__()
+        # Make a red enemy, of the size specified in the parameters
+        self.image = pygame.Surface((60,80))
+        self.image.fill(RED)
+        # Make our top-left corner the passed-in location.
+        self.rect = self.image.get_rect()
+        self.rect.centerx = WIDTH/2
+        self.rect.top = 0
+        self.speed_x = 0
+        self.speed_y = 5
+        self.limit = None
+
+
+    def changespeed(self, x, y) : 
+        #Enemy speed
+        self.speed_x += x
+        self.speed_y += y
+
+    def update(self) :
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
+
+        #check if collide with player
+        #block_hit_list = pygame.sprite.spritecollide(self, self.limit, False)
+        #for block in block_hit_list:
+         
+        #    pygame.quit()
+
+
+
 class Limit(pygame.sprite.Sprite):
     """ Wall the player can run into. """
     def __init__(self, x, y, width, height):
@@ -90,11 +122,19 @@ all_sprites.add(limit)
 limit = Limit(0, 600, 480, 0)
 limit_list.add(limit)
 all_sprites.add(limit)
+
+enemy_list = pygame.sprite.Group()
+player = pygame.sprite.Group()
+
 player = Player()
 player.limit = limit_list
 all_sprites.add(player)
 
-
+#1st enemy
+enemy = Enemy()
+enemy_list.add(enemy)
+enemy.limit = limit_list
+all_sprites.add(enemy)
 
 # Game loop
 running = True
@@ -130,6 +170,10 @@ while running:
 
     # Update
     all_sprites.update()
+
+    hit = pygame.sprite.spritecollide(player, enemy_list, False) 
+    if hit :
+        pygame.quit()
 
     # Draw / render
     screen.fill(BLACK)
